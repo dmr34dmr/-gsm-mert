@@ -22,9 +22,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential git perl libssl-dev libyaml-dev make wget curl unzip
 
-      - name: Install Theos & SDK
+      - name: Install Theos, Toolchain & SDK
         run: |
           git clone --recursive https://github.com/theos/theos.git $THEOS
+          git clone https://github.com/theos/toolchain-linux.git $THEOS/toolchain/linux/iphone
           curl -LO https://github.com/theos/sdks/archive/refs/heads/master.zip
           unzip master.zip
           mv sdks-master/iPhoneOS14.5.sdk $THEOS/sdks/
@@ -37,7 +38,7 @@ jobs:
       - name: Build Tweak (.deb)
         run: |
           cd $GITHUB_WORKSPACE
-          make package FINALPACKAGE=1 DEBUG=1 V=1
+          make package FINALPACKAGE=1
 
       - name: Upload DEB Artifact
         uses: actions/upload-artifact@v4
