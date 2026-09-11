@@ -20,31 +20,42 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential clang llvm lld git perl libssl-dev libyaml-dev make wget curl unzip
+          sudo apt-get install -y build-essential git perl libssl-dev libyaml-dev make wget curl unzip clang
 
-      - name: Install Theos & SDK
+      - name: Install Theos & SDK & Correct Linux Toolchain
         run: |
           git clone --recursive https://github.com/theos/theos.git $THEOS
+          
+          # Kimlik doğrulama istemeyen güncel toolchain-linux aynasını klonluyoruz
+          git clone https://github.com/sbingner/cctools-port.git /tmp/cctools || true
+          
+          # Theos SDK kurulumu
           curl -LO https://github.com/theos/sdks/archive/refs/heads/master.zip
           unzip master.zip
           mv sdks-master/iPhoneOS14.5.sdk $THEOS/sdks/
           rm -rf master.zip sdks-master
 
-      - name: Fix Theos Permissions & Linker Bypass
+      - name: Setup Theos Toolchain Symlinks
         run: |
           sudo chmod -R 777 /opt/theos
-          # Theos'un Linux üzerinde clang kullanırken lld/ld hatalarını önlemek için wrapper oluşturuyoruz
+          # Theos'un aradığı bin dizinini oluşturuyoruz
           sudo mkdir -p /opt/theos/toolchain/linux/iphone/bin
+          
+          # Sistemdeki clang ve llvm araçlarını Theos toolchain yoluna bağlıyoruz
           sudo ln -sf /usr/bin/clang /opt/theos/toolchain/linux/iphone/bin/clang
           sudo ln -sf /usr/bin/clang++ /opt/theos/toolchain/linux/iphone/bin/clang++
-          # lld'yi sistem bağlayıcısı olarak tanıtıyoruz
-          sudo ln -sf /usr/bin/ld.lld /opt/theos/toolchain/linux/iphone/bin/ld
+          sudo ln -sf /usr/bin/llvm-ar /opt/theos/toolchain/linux/iphone/bin/ar
+          sudo ln -sf /usr/bin/llvm-strip /opt/theos/toolchain/linux/iphone/bin/strip
+          
+          # Apple linker (ld) uyumlu bir wrapper veya sistem linki oluşturuyoruz
+          # Linux ld hatasını önlemek için clang'ın kendi dahili linker sürücüsünü tetikliyoruz
+          sudo printf '#!/bin/sh\nexec clang -target arm64-apple-ios14.5 "$@"\n' | sudo tee /opt/theos/toolchain/linux/iphone/bin/ld > /dev/null
+          sudo chmod +x /opt/theos/toolchain/linux/iphone/bin/ld
 
       - name: Build Tweak (.deb)
         run: |
           cd $GITHUB_WORKSPACE
-          # Ekstra linker bayrakları vererek derlemeyi zorluyoruz
-          make package FINALPACKAGE=1 TARGET_CODESIGN=emulate
+          make package FINALPACKAGE=1
 
       - name: Upload DEB Artifact
         uses: actions/upload-artifact@v4
