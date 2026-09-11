@@ -20,7 +20,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential git perl libssl-dev libyaml-dev
+          sudo apt-get install -y build-essential git perl libssl-dev libyaml-dev make wget curl unzip
 
       - name: Install Theos & SDK
         run: |
@@ -29,6 +29,10 @@ jobs:
           unzip master.zip
           mv sdks-master/iPhoneOS14.5.sdk $THEOS/sdks/
           rm -rf master.zip sdks-master
+
+      - name: Fix Theos Permissions & Make
+        run: |
+          sudo chmod -R 777 /opt/theos
 
       - name: Build Tweak (.deb)
         run: |
