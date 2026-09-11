@@ -1,9 +1,47 @@
+name: Build GSM Mert Tweak
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Environment Variables
+        run: |
+          echo "THEOS=/opt/theos" >> $GITHUB_ENV
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential git perl libssl-dev libyaml-dev make wget curl unzip
+
       - name: Install Theos & SDK
         run: |
           git clone --recursive https://github.com/theos/theos.git $THEOS
-          # Theos toolchain (clang) kurulumu
           git clone https://github.com/theos/toolchain-linux.git $THEOS/toolchain/linux/iphone
           curl -LO https://github.com/theos/sdks/archive/refs/heads/master.zip
           unzip master.zip
           mv sdks-master/iPhoneOS14.5.sdk $THEOS/sdks/
           rm -rf master.zip sdks-master
+
+      - name: Fix Theos Permissions
+        run: |
+          sudo chmod -R 777 /opt/theos
+
+      - name: Build Tweak (.deb)
+        run: |
+          cd $GITHUB_WORKSPACE
+          make package FINALPACKAGE=1 DEBUG=1 V=1
+
+      - name: Upload DEB Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GSMRelayOutgoing-deb
+          path: packages/*.deb
