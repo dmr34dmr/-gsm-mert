@@ -25,7 +25,6 @@ jobs:
       - name: Install Theos & SDK
         run: |
           git clone --recursive https://github.com/theos/theos.git $THEOS
-          git clone https://github.com/theos/toolchain-linux.git $THEOS/toolchain/linux/iphone
           curl -LO https://github.com/theos/sdks/archive/refs/heads/master.zip
           unzip master.zip
           mv sdks-master/iPhoneOS14.5.sdk $THEOS/sdks/
