@@ -1,0 +1,9 @@
+Package: com.yourname.gsmrelayoutgoing
+Name: GSMRelayOutgoing
+Depends: mobilesubstrate
+Version: 0.0.1-1
+Architecture: iphoneos-arm
+Maintainer: dmr34dmr
+Author: dmr34dmr
+Section: Tweaks
+Description: Route outgoing calls via TelephonyUtilities relay
