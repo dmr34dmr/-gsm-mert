@@ -8,39 +8,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: joeldev/theos:latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Environment Variables
-        run: |
-          echo "THEOS=/opt/theos" >> $GITHUB_ENV
-
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential clang llvm lld git perl libssl-dev libyaml-dev make wget curl unzip
-
-      - name: Install Theos & SDK
-        run: |
-          git clone --recursive https://github.com/theos/theos.git $THEOS
-          curl -LO https://github.com/theos/sdks/archive/refs/heads/master.zip
-          unzip master.zip
-          mv sdks-master/iPhoneOS14.5.sdk $THEOS/sdks/
-          rm -rf master.zip sdks-master
-
-      - name: Fix Theos Permissions & Symlink Clang/LLD
-        run: |
-          sudo chmod -R 777 /opt/theos
-          sudo mkdir -p /opt/theos/toolchain/linux/iphone/bin
-          sudo ln -sf /usr/bin/clang /opt/theos/toolchain/linux/iphone/bin/clang
-          sudo ln -sf /usr/bin/clang++ /opt/theos/toolchain/linux/iphone/bin/clang++
-          sudo ln -sf /usr/bin/ld.lld /opt/theos/toolchain/linux/iphone/bin/ld
-
       - name: Build Tweak (.deb)
         run: |
-          cd $GITHUB_WORKSPACE
           make package FINALPACKAGE=1
 
       - name: Upload DEB Artifact
