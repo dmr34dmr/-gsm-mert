@@ -26,16 +26,24 @@ jobs:
           mv sdks-master/iPhoneOS14.5.sdk /opt/theos/sdks/
           rm -rf master.zip sdks-master
 
-      - name: Configure Theos Environment
+      - name: Create Complete Linux Toolchain Links
         run: |
           sudo chmod -R 777 /opt/theos
-          echo "THEOS=/opt/theos" >> $GITHUB_ENV
+          # Theos'un aradığı Linux toolchain dizinini eksiksiz oluşturuyoruz
+          sudo mkdir -p /opt/theos/toolchain/linux/iphone/bin
+          
+          # Sistemdeki tüm derleme araçlarını Theos'un beklediği konuma bağlıyoruz
+          sudo ln -sf /usr/bin/clang /opt/theos/toolchain/linux/iphone/bin/clang
+          sudo ln -sf /usr/bin/clang++ /opt/theos/toolchain/linux/iphone/bin/clang++
+          sudo ln -sf /usr/bin/llvm-ar /opt/theos/toolchain/linux/iphone/bin/ar
+          sudo ln -sf /usr/bin/llvm-strip /opt/theos/toolchain/linux/iphone/bin/strip
+          sudo ln -sf /usr/bin/lld /opt/theos/toolchain/linux/iphone/bin/ld
 
       - name: Build Tweak (.deb)
         run: |
           cd $GITHUB_WORKSPACE
-          # Linux toolchain uyarılarını es geçerek derlemeyi zorluyoruz
-          make package FINALPACKAGE=1 DEBUG=0
+          export THEOS=/opt/theos
+          make package FINALPACKAGE=1
 
       - name: Upload DEB Artifact
         uses: actions/upload-artifact@v4
