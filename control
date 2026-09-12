@@ -2,7 +2,7 @@ Package: com.yourname.gsmrelayoutgoing
 Name: GSMRelayOutgoing
 Depends: mobilesubstrate
 Version: 0.0.1-1
-Architecture: iphoneos-arm64⁠
+Architecture: iphoneos-arm64
 Maintainer: dmr34dmr
 Author: dmr34dmr
 Section: Tweaks
