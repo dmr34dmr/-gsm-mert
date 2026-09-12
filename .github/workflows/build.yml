@@ -7,47 +7,30 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential git perl libssl-dev libyaml-dev make wget curl unzip xz-utils lld clang llvm gobjc
+      - name: Install Build Dependencies
+        # .deb paketlemesi ve Theos imzalama işlemleri için dpkg ve ldid kuruyoruz
+        run: brew install ldid dpkg
 
       - name: Setup Theos & SDK
         run: |
-          git clone --recursive https://github.com/theos/theos.git /opt/theos
+          git clone --recursive https://github.com/theos/theos.git /Users/runner/theos
           
-          # Doğru dizinleri oluşturuyoruz
-          sudo mkdir -p /opt/theos/toolchain/linux/iphone/bin
-          
-          # Apple Mach-O ve Objective-C derlemeleri için derleyiciyi symlinkliyoruz
-          sudo ln -sf /usr/bin/clang /opt/theos/toolchain/linux/iphone/bin/clang
-          sudo ln -sf /usr/bin/clang++ /opt/theos/toolchain/linux/iphone/bin/clang++
-          sudo ln -sf /usr/bin/llvm-ar /opt/theos/toolchain/linux/iphone/bin/ar
-          sudo ln -sf /usr/bin/llvm-strip /opt/theos/toolchain/linux/iphone/bin/strip
-          
-          # GNU ld yerine, Apple Darwin hedeflerini işleyebilen lld'yi kullanıyoruz
-          sudo ln -sf /usr/bin/ld.lld /opt/theos/toolchain/linux/iphone/bin/ld
-
-          # SDK Kurulumu
-          sudo mkdir -p /opt/theos/sdks
-          cd /opt/theos/sdks
+          # Doğrudan Theos SDK'lerini kuruyoruz (Toolchain indirmeye gerek yok, macOS zaten yerel destekliyor)
           curl -LO https://github.com/theos/sdks/archive/refs/heads/master.zip
           unzip -q master.zip
-          mv sdks-master/iPhoneOS14.5.sdk ./iPhoneOS14.5.sdk
+          mv sdks-master/* /Users/runner/theos/sdks/
           rm -rf master.zip sdks-master
 
       - name: Build Tweak (.deb)
         run: |
           cd $GITHUB_WORKSPACE
-          export THEOS=/opt/theos
-          export PATH="/opt/theos/toolchain/linux/iphone/bin:$PATH"
-          # -Bdynamic ve diğer argümanların yönetimi için
+          export THEOS=/Users/runner/theos
           make package FINALPACKAGE=1
 
       - name: Upload DEB Artifact
