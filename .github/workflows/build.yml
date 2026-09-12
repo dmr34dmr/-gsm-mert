@@ -18,23 +18,26 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential git perl libssl-dev libyaml-dev make wget curl unzip xz-utils lld clang llvm
 
-      - name: Setup Theos & SDK
+      - name: Setup Theos & Apple Toolchain Symlinks
         run: |
           git clone --recursive https://github.com/theos/theos.git /opt/theos
           
-          # Theos toolchain dizinini elle oluşturup sistem clang'ini bağlıyoruz
+          # Theos toolchain dizinini eksiksiz oluşturuyoruz
           sudo mkdir -p /opt/theos/toolchain/linux/iphone/bin
+          
+          # Sistemdeki clang ve lld bağlayıcısını Theos'un aradığı isimlerle bağlıyoruz
           sudo ln -sf /usr/bin/clang /opt/theos/toolchain/linux/iphone/bin/clang
           sudo ln -sf /usr/bin/clang++ /opt/theos/toolchain/linux/iphone/bin/clang++
           sudo ln -sf /usr/bin/llvm-ar /opt/theos/toolchain/linux/iphone/bin/ar
           sudo ln -sf /usr/bin/llvm-strip /opt/theos/toolchain/linux/iphone/bin/strip
-          sudo ln -sf /usr/bin/lld /opt/theos/toolchain/linux/iphone/bin/ld
+          sudo ln -sf /usr/bin/ld.lld /opt/theos/toolchain/linux/iphone/bin/ld
 
-          # SDK Kurulumu
+          # SDK Kurulumu (Doğru konumlandırma)
           sudo mkdir -p /opt/theos/sdks
           cd /opt/theos/sdks
           curl -LO https://github.com/theos/sdks/archive/refs/heads/master.zip
           unzip -q master.zip
+          # SDK klasör adını ve içeriğini düzgün hizalıyoruz
           mv sdks-master/iPhoneOS14.5.sdk ./iPhoneOS14.5.sdk
           rm -rf master.zip sdks-master
 
