@@ -1,13 +1,11 @@
-export THEOS_PACKAGE_SCHEME = rootless
-THEOS_DEVICE_IP = 127.0.0.1
-ARCHS = arm64
-TARGET = iphone:clang:14.5:14.0
+target := iphone:clang:latest:13.0
+installer := rootless
 
 include $(THEOS)/makefiles/common.mk
 
-TWEAK_NAME = GSMRelayOutgoing
+TWEAK_NAME = GSMBridgeDaemon
 
-GSMRelayOutgoing_FILES = Tweak.x
-GSMRelayOutgoing_CFLAGS = -fobjc-arc
+GSMBridgeDaemon_FILES = main.m
+GSMBridgeDaemon_FRAMEWORKS = Foundation CoreTelephony AudioToolbox
 
 include $(THEOS_MAKE_PATH)/tweak.mk
