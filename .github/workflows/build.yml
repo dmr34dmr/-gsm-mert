@@ -16,18 +16,20 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential git perl libssl-dev libyaml-dev make wget curl unzip xz-utils lld clang
+          sudo apt-get install -y build-essential git perl libssl-dev libyaml-dev make wget curl unzip xz-utils lld clang llvm
 
-      - name: Setup Theos & Apple Toolchain
+      - name: Setup Theos & SDK
         run: |
           git clone --recursive https://github.com/theos/theos.git /opt/theos
           
-          # Linux üzerinde iOS derlemesi yapabilmek için gerekli olan Procursus tabanlı toolchain'i çekiyoruz
-          sudo mkdir -p /opt/theos/toolchain/linux
-          cd /opt/theos/toolchain/linux
-          curl -L -o iphone.tar.gz https://github.com/theos/provenance/releases/download/v1.0/linux-arm64.tar.gz || true
-          if [ -f iphone.tar.gz ]; then tar -xzf iphone.tar.gz; fi
-          
+          # Theos toolchain dizinini elle oluşturup sistem clang'ini bağlıyoruz
+          sudo mkdir -p /opt/theos/toolchain/linux/iphone/bin
+          sudo ln -sf /usr/bin/clang /opt/theos/toolchain/linux/iphone/bin/clang
+          sudo ln -sf /usr/bin/clang++ /opt/theos/toolchain/linux/iphone/bin/clang++
+          sudo ln -sf /usr/bin/llvm-ar /opt/theos/toolchain/linux/iphone/bin/ar
+          sudo ln -sf /usr/bin/llvm-strip /opt/theos/toolchain/linux/iphone/bin/strip
+          sudo ln -sf /usr/bin/lld /opt/theos/toolchain/linux/iphone/bin/ld
+
           # SDK Kurulumu
           sudo mkdir -p /opt/theos/sdks
           cd /opt/theos/sdks
@@ -40,7 +42,6 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE
           export THEOS=/opt/theos
-          # Theos make sisteminin doğru derleyici yollarını tanıması için PATH güncelleniyor
           export PATH="/opt/theos/toolchain/linux/iphone/bin:$PATH"
           make package FINALPACKAGE=1
 
