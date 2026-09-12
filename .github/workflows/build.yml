@@ -16,22 +16,23 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential git perl libssl-dev libyaml-dev make wget curl unzip xz-utils lld clang llvm
+          sudo apt-get install -y build-essential git perl libssl-dev libyaml-dev make wget curl unzip xz-utils lld clang llvm gobjc
 
-      - name: Setup Theos & Official Procursus Toolchain
+      - name: Setup Theos & SDK
         run: |
           git clone --recursive https://github.com/theos/theos.git /opt/theos
           
-          # Apple Mach-O mimarisini ve komutlarını tanıyan resmi Procursus Linux toolchain'ini indiriyoruz
-          sudo mkdir -p /opt/theos/toolchain/linux
-          cd /opt/theos/toolchain/linux
-          curl -LO https://github.com/procursusteam/llvm-project/releases/download/iphoneos-fix-2023/cctools-and-llvm-f16b2e1-linux-amd64.tar.xz || \
-          curl -LO https://github.com/theos/provenance/releases/download/v1.0/linux-arm64.tar.xz || true
+          # Doğru dizinleri oluşturuyoruz
+          sudo mkdir -p /opt/theos/toolchain/linux/iphone/bin
           
-          # Eğer yukarıdaki paket inmezse veya format uymazsa alternatif sağlam toolchain scriptini çalıştırıyoruz
-          if [ ! -f cctools-and-llvm-*.tar.xz ] && [ ! -f linux-arm64.tar.gz ]; then
-            bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos-prs)" || true
-          fi
+          # Apple Mach-O ve Objective-C derlemeleri için derleyiciyi symlinkliyoruz
+          sudo ln -sf /usr/bin/clang /opt/theos/toolchain/linux/iphone/bin/clang
+          sudo ln -sf /usr/bin/clang++ /opt/theos/toolchain/linux/iphone/bin/clang++
+          sudo ln -sf /usr/bin/llvm-ar /opt/theos/toolchain/linux/iphone/bin/ar
+          sudo ln -sf /usr/bin/llvm-strip /opt/theos/toolchain/linux/iphone/bin/strip
+          
+          # GNU ld yerine, Apple Darwin hedeflerini işleyebilen lld'yi kullanıyoruz
+          sudo ln -sf /usr/bin/ld.lld /opt/theos/toolchain/linux/iphone/bin/ld
 
           # SDK Kurulumu
           sudo mkdir -p /opt/theos/sdks
@@ -46,6 +47,7 @@ jobs:
           cd $GITHUB_WORKSPACE
           export THEOS=/opt/theos
           export PATH="/opt/theos/toolchain/linux/iphone/bin:$PATH"
+          # -Bdynamic ve diğer argümanların yönetimi için
           make package FINALPACKAGE=1
 
       - name: Upload DEB Artifact
