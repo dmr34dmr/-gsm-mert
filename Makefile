@@ -1,5 +1,5 @@
 target := iphone:clang:latest:14.0
-installer := rootless
+THEOS_PACKAGE_SCHEME = rootless
 
 include $(THEOS)/makefiles/common.mk
 
