@@ -1,3 +1,4 @@
+export THEOS_PACKAGE_SCHEME = rootless
 THEOS_DEVICE_IP = 127.0.0.1
 ARCHS = arm64
 TARGET = iphone:clang:14.5:14.0
