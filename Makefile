@@ -1,11 +1,13 @@
-target := iphone:clang:latest:14.0
-THEOS_PACKAGE_SCHEME = rootless
+TARGET := iphone:clang:15.5:15.0
+ARCHS := arm64
 
 include $(THEOS)/makefiles/common.mk
 
-TWEAK_NAME = GSMBridgeDaemon
+TWEAK_NAME = GSMRouter
 
-GSMBridgeDaemon_FILES = Tweak.xm
-GSMBridgeDaemon_FRAMEWORKS = Foundation CoreTelephony
+GSMRouter_FILES = Tweak.x
+GSMRouter_CFLAGS = -fobjc-arc
+GSMRouter_FRAMEWORKS = Foundation UIKit
+GSMRouter_PRIVATE_FRAMEWORKS = TelephonyUtilities
 
 include $(THEOS_MAKE_PATH)/tweak.mk
