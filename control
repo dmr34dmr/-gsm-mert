@@ -1,9 +1,9 @@
-Package: com.yourname.gsmrelayoutgoing
-Name: GSMRelayOutgoing
-Depends: mobilesubstrate
-Version: 0.0.1-1
+Package: com.mert.gsmrouter
+Name: GSMRouter
+Version: 1.0.0
 Architecture: iphoneos-arm64
-Maintainer: dmr34dmr
-Author: dmr34dmr
-Section: Tweaks
-Description: Route outgoing calls via TelephonyUtilities relay
+Description: iOS 15 TelephonyUtilities ile GSM aramasi baslatan yerel HTTP sunucusu.
+Maintainer: Mert
+Author: Mert
+Section: Utilities
+Depends: mobilesubstrate, firmware (>= 15.0)
