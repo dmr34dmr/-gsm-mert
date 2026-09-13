@@ -5,7 +5,7 @@ include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = GSMRouter
 
-GSMRouter_FILES = Tweak.x
+GSMRouter_FILES = Tweak.xm
 GSMRouter_CFLAGS = -fobjc-arc
 GSMRouter_FRAMEWORKS = Foundation UIKit
 GSMRouter_PRIVATE_FRAMEWORKS = TelephonyUtilities
